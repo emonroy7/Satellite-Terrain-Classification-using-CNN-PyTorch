@@ -34,7 +34,7 @@ A machine learning–based system for predicting stock market trends using multi
 - **Language:** Python
 - **Data Source:** [`yfinance`](https://pypi.org/project/yfinance/) — historical stock price data
 - **ML Libraries:** TensorFlow / Keras, scikit-learn
-- **GUI:** Tkinter (or specify your framework)
+- **GUI:** Tkinter
 - **Other:** NumPy, Pandas, Matplotlib
 
 ---

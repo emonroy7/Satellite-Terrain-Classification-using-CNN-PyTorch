@@ -4,7 +4,7 @@
 
 ## # About This Project
 
-Satellite image classification is a genuinely hard and impactful problem. Being able to automatically identify terrain types at scale has direct applications in climate monitoring, agricultural planning, and urban development. This project gave me the opportunity to work hands-on with computer vision, deep learning, and full-stack ML deployment — skills I want to carry into a career in data science and AI.
+Satellite image classification is a genuinely hard and impactful problem. Being able to automatically identify terrain types at scale has direct applications in climate monitoring, agricultural planning, and urban development. This project gave me the opportunity to work hands-on with computer vision, deep learning, and full-stack ML deployment skills that I want to carry into a career in data science and AI.
 
 ---
 
@@ -13,7 +13,7 @@ Satellite image classification is a genuinely hard and impactful problem. Being 
 Organizations in agriculture, urban planning, environmental monitoring, and disaster response need to classify large volumes of satellite imagery quickly and accurately. Manual classification is slow, expensive, and impossible to scale across thousands of square kilometers.
 
 ### The Solution
-An end-to-end deep learning pipeline that automatically classifies satellite images into 10 terrain types using a custom Convolutional Neural Network (CNN) built with PyTorch — deployable as an interactive web application.
+An end-to-end deep learning pipeline that automatically classifies satellite images into 10 terrain types using a custom Convolutional Neural Network (CNN) built with PyTorch deployable as an interactive web application.
 
 ### The Number Impact
 | Metric | Value |
@@ -35,7 +35,7 @@ Organizations across multiple sectors struggle to process satellite imagery at s
 - 🌊 **Environmental** — Monitor deforestation, river changes, and sea/lake boundaries
 - 🚗 **Infrastructure** — Detect highway expansion and new construction
 
-Manual analysis by experts is a bottleneck. A single analyst can review hundreds of images per day — an automated model can classify thousands per second.
+Manual analysis by experts is a bottleneck. A single analyst can review hundreds of images per day, an automated model can classify thousands per second.
 
 **The 10 terrain classes this model covers:**
 
@@ -58,7 +58,7 @@ Manual analysis by experts is a bottleneck. A single analyst can review hundreds
 
 ![Average Brightness per Class](assets/plots/average_brightness.png)
 
-> SeaLake and River classes tend to be darker (lower brightness), while Industrial and Residential areas are brighter — a pattern the model learns to exploit.
+> SeaLake and River classes tend to be darker (lower brightness), while Industrial and Residential areas are brighter, a pattern the model learns to exploit.
 
 ---
 
@@ -88,7 +88,7 @@ Raw Satellite Images (64×64 RGB)
 
 ### CNN Architecture
 
-4 convolutional blocks followed by Global Average Pooling and a 2-layer classifier head. No pretrained weights — trained from scratch.
+4 convolutional blocks followed by Global Average Pooling and a 2-layer classifier head. No pretrained weights, trained from scratch.
 
 ```
 Input (3 × 64 × 64)
@@ -130,14 +130,14 @@ Input (3 × 64 × 64)
 
 ![Training Curves](assets/plots/training_curves.png)
 
-The model converges smoothly with no signs of severe overfitting — training and validation loss track closely throughout training.
+The model converges smoothly with no signs of severe overfitting. Training and validation loss track closely throughout training.
 
 ### Confusion Matrix
 
 ![Confusion Matrix](assets/plots/confusion_matrix.png)
 
 The model performs strongly across most classes. Key observations:
-- **Forest, SeaLake, Highway, Industrial** — near-perfect classification
+- **Forest, SeaLake, Highway, Industrial** — near perfect classification
 - **AnnualCrop vs PermanentCrop** — most common confusion (visually similar terrain)
 - **HerbaceousVegetation vs Pasture** — occasional misclassification (both green, low-texture)
 

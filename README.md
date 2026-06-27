@@ -1,66 +1,192 @@
-# Satellite Image Classification with CNN and PyTorch
+# Satellite Terrain Classification using CNN & PyTorch
 
-A deep learning pipeline that classifies satellite images into 10 terrain categories using a custom Convolutional Neural Network built with PyTorch. Includes a Shiny web application for interactive inference.
+---
 
-## Results
+## 0. About This Project
 
+Satellite image classification is a genuinely hard and impactful problem. Being able to automatically identify terrain types at scale has direct applications in climate monitoring, agricultural planning, and urban development. This project gave me the opportunity to work hands-on with computer vision, deep learning, and full-stack ML deployment — skills I want to carry into a career in data science and AI.
+
+---
+
+## 1. Executive Summary
+
+### The Business Problem
+Organizations in agriculture, urban planning, environmental monitoring, and disaster response need to classify large volumes of satellite imagery quickly and accurately. Manual classification is slow, expensive, and impossible to scale across thousands of square kilometers.
+
+### The Solution
+An end-to-end deep learning pipeline that automatically classifies satellite images into 10 terrain types using a custom Convolutional Neural Network (CNN) built with PyTorch — deployable as an interactive web application.
+
+### The Number Impact
 | Metric | Value |
 |---|---|
 | Validation Accuracy | **92.60%** |
-| Training Epochs | 50 |
-| Best Epoch | 47 |
+| Images Classified | 10,000 |
+| Terrain Classes | 10 |
 | Model Parameters | 1,241,578 |
-| Dataset Size | 10,000 images |
+| Training Time | ~50 min (CPU) |
 
-## Dataset
+### A Few Next Steps
+- Deploy model to cloud (AWS / GCP) for real-time satellite feed inference
+- Expand to multispectral (13-band) EuroSAT for higher accuracy
+- Integrate with GIS tools (QGIS, ArcGIS) for geospatial workflows
 
-[EuroSAT RGB](https://github.com/phelber/EuroSAT) — 10,000 satellite images (64×64 px, RGB) across 10 terrain classes:
+---
 
-`AnnualCrop` · `Forest` · `HerbaceousVegetation` · `Highway` · `Industrial` · `Pasture` · `PermanentCrop` · `Residential` · `River` · `SeaLake`
+## 2. Business Problem
 
-Split: **80% training (8,000)** / **20% validation (2,000)**, stratified so each class is equally represented in both sets.
+Organizations across multiple sectors struggle to process satellite imagery at scale:
 
-## Model Architecture
+- 🌾 **Agriculture** — Monitor crop health, detect annual vs permanent cropland
+- 🏙️ **Urban Planning** — Track residential and industrial growth over time
+- 🌊 **Environmental** — Monitor deforestation, river changes, and sea/lake boundaries
+- 🚗 **Infrastructure** — Detect highway expansion and new construction
 
-Custom CNN — no pretrained weights or transfer learning.
+Manual analysis by experts is a bottleneck. A single analyst can review hundreds of images per day — an automated model can classify thousands per second.
+
+**The 10 terrain classes this model covers:**
+
+| Class | Class | Class |
+|---|---|---|
+| AnnualCrop | Forest | HerbaceousVegetation |
+| Highway | Industrial | Pasture |
+| PermanentCrop | Residential | River |
+| SeaLake | | |
+
+### Sample Images from the Dataset
+
+![Random Samples](assets/plots/random_samples.png)
+
+### Pixel Value Distribution (RGB Channels)
+
+![Average Pixel Distribution](assets/plots/average_pixel_distribution.png)
+
+### Brightness Distribution by Class
+
+![Average Brightness per Class](assets/plots/average_brightness.png)
+
+> SeaLake and River classes tend to be darker (lower brightness), while Industrial and Residential areas are brighter — a pattern the model learns to exploit.
+
+---
+
+## 3. Methodology
+
+### Pipeline Overview
+
+```
+Raw Satellite Images (64×64 RGB)
+        ↓
+  Data Preprocessing
+  (catalogue, stratified 80/20 split)
+        ↓
+  Exploratory Data Analysis
+  (pixel distributions, brightness per class)
+        ↓
+  CNN Training
+  (augmentation → forward pass → loss → backprop)
+        ↓
+  Model Evaluation
+  (accuracy, confusion matrix, misclassified samples)
+        ↓
+  Test Set Prediction → submission.csv
+        ↓
+  Shiny Web App (interactive inference)
+```
+
+### CNN Architecture
+
+4 convolutional blocks followed by Global Average Pooling and a 2-layer classifier head. No pretrained weights — trained from scratch.
 
 ```
 Input (3 × 64 × 64)
-  → ConvBlock(3 → 32)    # 64 → 32
-  → ConvBlock(32 → 64)   # 32 → 16
-  → ConvBlock(64 → 128)  # 16 → 8
-  → ConvBlock(128 → 256) #  8 → 4
-  → GlobalAveragePool    #  4 → 1
-  → Linear(256 → 256) + ReLU + Dropout
-  → Linear(256 → 10)
+  → ConvBlock(3→32)    │ Each block:
+  → ConvBlock(32→64)   │ Conv→BN→ReLU→Conv→BN→ReLU
+  → ConvBlock(64→128)  │ →MaxPool→Dropout2D
+  → ConvBlock(128→256) │
+  → GlobalAvgPool
+  → Linear(256→256) + ReLU + Dropout
+  → Linear(256→10)  ← output logits
 ```
 
-Each ConvBlock: `Conv2d → BN → ReLU → Conv2d → BN → ReLU → MaxPool2d → Dropout2d`
-
-**Training setup:**
+**Training configuration:**
 - Optimizer: Adam (lr=1e-3, weight_decay=1e-4)
 - Scheduler: CosineAnnealingLR
 - Loss: CrossEntropyLoss
-- Early stopping: patience=10
-- Data augmentation: random horizontal/vertical flip, rotation ±15°, color jitter
+- Early stopping: patience=10 epochs
+- Augmentation: horizontal/vertical flip, ±15° rotation, color jitter
 
-## Training Progress
+---
 
-| Epoch | Train Loss | Val Loss | Val Acc |
-|---|---|---|---|
-| 10 | 0.8585 | 0.6195 | 78.65% |
-| 20 | 0.6657 | 0.4617 | 84.35% |
-| 30 | 0.5175 | 0.3216 | 89.55% |
-| 40 | 0.4219 | 0.2387 | 91.95% |
-| 47 | 0.3846 | **0.2196** | **92.60%** ✓ best |
+## 4. Skills
+
+| Category | Tools & Technologies |
+|---|---|
+| Language | Python 3.12 |
+| Deep Learning | PyTorch, torchvision |
+| Data Processing | Pandas, NumPy |
+| Visualization | Matplotlib, Seaborn |
+| Image Processing | Pillow (PIL) |
+| ML Utilities | scikit-learn (stratified split, confusion matrix) |
+| Web App | Shiny for Python (Express) |
+| Environment | Google Colab (GPU training) |
+
+---
+
+## 5. Results & Business Recommendations
+
+### Training & Validation Curves
+
+![Training Curves](assets/plots/training_curves.png)
+
+The model converges smoothly with no signs of severe overfitting — training and validation loss track closely throughout training.
+
+### Confusion Matrix
+
+![Confusion Matrix](assets/plots/confusion_matrix.png)
+
+The model performs strongly across most classes. Key observations:
+- **Forest, SeaLake, Highway, Industrial** — near-perfect classification
+- **AnnualCrop vs PermanentCrop** — most common confusion (visually similar terrain)
+- **HerbaceousVegetation vs Pasture** — occasional misclassification (both green, low-texture)
+
+### Misclassified Samples
+
+![Misclassified Samples](assets/plots/misclassified.png)
+
+### Business Recommendations
+
+**Deploy with high confidence for:**
+- Forest monitoring and deforestation tracking
+- Sea/lake boundary detection for flood risk assessment
+- Industrial and residential zone mapping for urban planning
+- Highway and infrastructure detection
+
+**Use with human review for:**
+- AnnualCrop vs PermanentCrop distinction (92% accuracy, but fine-grained crop type matters for agricultural policy)
+- HerbaceousVegetation vs Pasture classification in low-resolution imagery
+
+---
+
+## 6. Next Steps
+
+1. **Multispectral data** — Upgrade from 3-band RGB to 13-band EuroSAT (includes NIR, SWIR) for significantly higher accuracy on crop and vegetation classes
+
+2. **Larger dataset** — Incorporate the full EuroSAT dataset (27,000 images) or Sentinel-2 patches for better generalization across global geographies
+
+3. **Cloud deployment** — Containerize with Docker and deploy to AWS Lambda or GCP Cloud Run for real-time satellite feed classification at scale
+
+4. **Change detection** — Extend the model to compare images of the same location over time, detecting urban sprawl, deforestation, or crop rotation patterns
+
+5. **GIS integration** — Export predictions with geographic coordinates for direct overlay in QGIS or ArcGIS workflows
+
+---
 
 ## Project Structure
 
 ```
 ├── project.ipynb               # Main notebook (all 5 sections)
 ├── app/
-│   ├── app.py              # Shiny web application
-│   └── best_model.pth      # Trained model weights
+│   ├── app.py                  # Shiny web application
+│   └── best_model.pth          # Trained model weights
 ├── assets/
 │   ├── plots/
 │   │   ├── random_samples.png
@@ -68,43 +194,35 @@ Each ConvBlock: `Conv2d → BN → ReLU → Conv2d → BN → ReLU → MaxPool2d
 │   │   ├── average_brightness.png
 │   │   ├── training_curves.png
 │   │   ├── confusion_matrix.png
-│   │   └── misclassified.png
+│   │   ├── misclassified.png
+│   │   └── shiny_screenshot.png
 │   └── weights/
 │       └── best_model.pth
-└── submission.csv          # Test set predictions for challenge server
+└── submission.csv              # Test set predictions for challenge server
 ```
 
-## How to Run
+---
 
-### Notebook (Google Colab)
-1. Upload `k10.ipynb` to Google Colab
-2. Place dataset on Google Drive at `MyDrive/Satellite_Dataset/data`
-3. Run all cells top to bottom
+## Web Application
 
-### Shiny Web App (locally)
+The model is wrapped in an interactive Shiny web app. Upload any satellite image and get an instant prediction with confidence score and full class probability breakdown.
+
+### App Screenshot
+
+![Shiny App Screenshot](assets/plots/shiny_screenshot.png)
+
+> In the example above, the model correctly identifies a **Forest** image with **99.7% confidence** — with the probability table showing near-zero scores for all other classes.
+
+### How to Run Locally
+
 ```bash
 pip install shiny torch torchvision pillow pandas numpy
 cd app
 python -m shiny run app.py
 ```
-Then open `http://127.0.0.1:8000` in your browser.
 
-The app lets you upload any satellite image and shows the predicted terrain class, confidence score, and a full probability table for all 10 classes.
+Open `http://127.0.0.1:8000` in your browser.
 
-## Requirements
+---
 
-```
-torch
-torchvision
-pandas
-numpy
-matplotlib
-seaborn
-Pillow
-scikit-learn
-shiny
-```
-
-## Author
-
-Emon
+**Author:** Ehtesham · Student ID: k10
